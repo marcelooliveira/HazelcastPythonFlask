@@ -4,34 +4,33 @@ from ECommerceData import ECommerceData
 from app import app
 
 this = sys.modules[__name__]
-this.CartItems = None
 
-eCommerceData = ECommerceData()
-eCommerceData.Initialize()
+ecommerce_data = ECommerceData()
+ecommerce_data.initialize()
 
 @app.route("/payment", methods=['GET', 'POST'])
 def payment():
     if request.method == 'GET':
-      return OnGet()
+      return on_get()
     elif request.method == 'POST':
-      return OnPost()
+      return on_post()
 
-def OnGet():
+def on_get():
     return get_page_result()
 
-def OnPost():
+def on_post():
     if 'approveSubmit' in request.form.keys():
-      eCommerceData.ApprovePayment()
+      ecommerce_data.approve_payment()
     if 'rejectSubmit' in request.form.keys():
-      eCommerceData.RejectPayment()
+      ecommerce_data.reject_payment()
     return get_page_result()
+
+def initialize_page():
+  this.orders_awaiting_payment = ecommerce_data.get_orders_awaiting_payment()
 
 def get_page_result():
-    InitializePage()
+    initialize_page()
     model = {
-      "OrdersAwaitingPayment": this.OrdersAwaitingPayment
+      "OrdersAwaitingPayment": this.orders_awaiting_payment
     }
     return render_template('payment.html', Model = model)
-
-def InitializePage():
-  this.OrdersAwaitingPayment = eCommerceData.OrdersAwaitingPayment()

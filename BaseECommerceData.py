@@ -3,13 +3,13 @@ from Singleton import Singleton
 from models.Product import Product
 
 class IBaseECommerceData(metaclass=Singleton):
-    def GetProductList(self):
+    def get_product_list(self):
         pass
 
 class BaseECommerceData(IBaseECommerceData):
-    MaxOrderId = 0
+    max_order_id = 0
 
-    def GetProductList(self):
+    def get_product_list(self):
         return [Product(1, "🍇", "Grapes box", 3.50),
             Product(2, "🍈", "Melon box", 3.50 ),
             Product(3, "🍉", "Watermelon box", 5.50 ),

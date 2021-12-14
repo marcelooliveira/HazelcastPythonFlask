@@ -4,35 +4,34 @@ from ECommerceData import ECommerceData
 from app import app
 
 this = sys.modules[__name__]
-this.CartItems = None
 
-eCommerceData = ECommerceData()
-eCommerceData.Initialize()
+ecommerce_data = ECommerceData()
+ecommerce_data.initialize()
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
     if request.method == 'GET':
-      return OnGet()
+      return on_get()
     elif request.method == 'POST':
-      return OnPost()
+      return on_post()
 
-def OnGet():
-    InitializePage()
-    model = {
-      "CartItems": this.CartItems
-    }
-    return render_template('index.html', Model = model)
+def on_get():
+    return get_page_result()
 
-def OnPost():
+def on_post():
     if 'addToCartSubmit' in request.form.keys():
       return redirect('/addToCart')
     if 'checkoutSubmit' in request.form.keys():
-      eCommerceData.Checkout()
+      ecommerce_data.check_out()
 
+    return get_page_result()
+
+def initialize_page():
+  this.cart_items = ecommerce_data.get_cart_items()
+
+def get_page_result():
+    initialize_page()
     model = {
-      "CartItems": this.CartItems
+      "CartItems": this.cart_items
     }
     return render_template('index.html', Model = model)
-
-def InitializePage():
-  this.CartItems = eCommerceData.GetCartItems()

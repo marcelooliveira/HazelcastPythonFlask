@@ -2,4 +2,4 @@
 
 class BaseEntity(ABC):
     def __init__(self, id):
-        self.Id = id
+        self.id = id

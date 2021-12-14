@@ -19,19 +19,19 @@
                 <span class="col col-3 mt-0 h6 border-left border-light text-right">Total</span>
             </div>
             <div class="row alert alert-warning flex-row align-items-center">
-                <input type="hidden" id="cartItemId" name="CartItemId" value="{{ Model['CartItem'].Id }}" />
-                <input type="number" class="col col-2 mt-0 h6" id="quantity" name="Quantity" value="{{ Model['CartItem'].Quantity }}"/>
+                <input type="hidden" id="cartItemId" name="CartItemId" value="{{ Model['CartItem'].id }}" />
+                <input type="number" class="col col-2 mt-0 h6" id="quantity" name="Quantity" value="{{ Model['CartItem'].quantity }}"/>
                 <select id="productId" name="ProductId" class="col col-4 mt-0 h6">
                     {% for product in Model["Products"] %}
-                        {% if Model["CartItem"].ProductId == product.Id %}
-                            <option value="{{ product.Id }}" selected>{{ product.Icon }} {{ product.Description }}</option>
+                        {% if Model["CartItem"].product_id == product.id %}
+                            <option value="{{ product.id }}" selected>{{ product.icon }} {{ product.description }}</option>
                         {% else %}
-                            <option value="{{ product.Id }}">{{ product.Icon }} {{ product.Description }}</option>
+                            <option value="{{ product.id }}">{{ product.icon }} {{ product.description }}</option>
                         {% endif %}
                     {% endfor %}
                 </select>
-                <span id="unitPrice" class="col col-3 mt-0 h6 border-left border-light text-right">{{ "%.2f"|format(Model["CartItem"].UnitPrice) }}</span>
-                <span id="total" class="col col-3 mt-0 h6 border-left border-light text-right">{{ "%.2f"|format(Model["CartItem"].Total) }}</span>
+                <span id="unitPrice" class="col col-3 mt-0 h6 border-left border-light text-right">{{ "%.2f"|format(Model["CartItem"].unit_price) }}</span>
+                <span id="total" class="col col-3 mt-0 h6 border-left border-light text-right">{{ "%.2f"|format(Model["CartItem"].total) }}</span>
             </div>
         </div>
     </div>

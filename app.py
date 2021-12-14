@@ -6,7 +6,7 @@ from models.CartItem import CartItem
 app = Flask(__name__)
 
 from routes.index import index
-from routes.addToCart import addToCart
+from routes.add_to_cart import add_to_cart
 from routes.payment import payment
 from routes.tracking import tracking
 

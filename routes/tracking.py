@@ -4,36 +4,35 @@ from ECommerceData import ECommerceData
 from app import app
 
 this = sys.modules[__name__]
-this.CartItems = None
 
-eCommerceData = ECommerceData()
-eCommerceData.Initialize()
+ecommerce_data = ECommerceData()
+ecommerce_data.initialize()
 
 @app.route("/tracking", methods=['GET', 'POST'])
 def tracking():
     if request.method == 'GET':
-      return OnGet()
+      return on_get()
     elif request.method == 'POST':
-      return OnPost()
+      return on_post()
 
-def OnGet():
+def on_get():
     return get_page_result()
 
-def OnPost():
+def on_post():
     if 'approveSubmit' in request.form.keys():
-      eCommerceData.ApprovePayment()
+      ecommerce_data.approve_payment()
     if 'rejectSubmit' in request.form.keys():
-      eCommerceData.RejectPayment()
+      ecommerce_data.reject_payment()
     return get_page_result()
 
 def get_page_result():
-    InitializePage()
+    initialize_page()
     model = {
-      "OrdersForDelivery": this.OrdersForDelivery,
-      "OrdersRejected": this.OrdersRejected
+      "OrdersForDelivery": this.orders_for_delivery,
+      "OrdersRejected": this.orders_rejected
     }
     return render_template('tracking.html', Model = model)
 
-def InitializePage():
-  this.OrdersForDelivery = eCommerceData.OrdersForDelivery()
-  this.OrdersRejected = eCommerceData.OrdersRejected()
+def initialize_page():
+  this.orders_for_delivery = ecommerce_data.get_orders_for_delivery()
+  this.orders_rejected = ecommerce_data.get_orders_rejected()
