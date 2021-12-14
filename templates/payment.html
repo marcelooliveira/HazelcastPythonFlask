@@ -1,0 +1,42 @@
+﻿{% extends "base.html" %}
+{% block title %}Orders Awaiting Payment{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+    <div class="col col-md-8 offset-md-2 alert alert-primary bg-secondary text-white text-center">
+        <span class="h3">💰 ORDERS AWAITING PAYMENT</span>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col col-md-8 offset-md-2">
+        <div class="row alert alert-warning bg-dark text-white">
+            <span class="col col-2 mt-0 h6 border-left border-light">Id</span>
+            <span class="col col-4 mt-0 h6 border-left border-light">Placement</span>
+            <span class="col col-3 mt-0 h6 border-left border-light">Item Count</span>
+            <span class="col col-3 mt-0 h6 border-left border-light text-right">Total</span>
+        </div>
+        {% for order in Model["OrdersAwaitingPayment"] %}
+            <div class="row alert alert-warning flex-row align-items-center
+                {{ "border border-danger" if order.Id == Model["OrdersAwaitingPayment"][val|length - 1].Id }}
+                ">
+                <span class="col col-2 mt-0 h6 border-left border-light">{{ order.Id }}</span>
+                <span class="col col-4 mt-0 h6 border-left border-light">{{ order.Placement.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                <span class="col col-3 mt-0 h6 border-left border-light">{{ order.ItemCount }}</span>
+                <span class="col col-3 mt-0 h6 border-left border-light text-right">{{ "%.2f"|format(order.Total) }}</span>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<form method="POST">
+    <div class="row mt-0">
+        <div class="col col-4 offset-md-6">
+            <input type="submit" class="h6 mt-0 float-right text-center" name="approveSubmit" value="✔️ Approve"
+            {{ 'disabled' if Model["OrdersAwaitingPayment"]|length == 0 }}/>
+            <input type="submit" class="h6 mt-0 mr-4 button float-right text-center" name="rejectSubmit" value="❌ Reject"
+            {{ 'disabled' if Model["OrdersAwaitingPayment"]|length == 0 }}/>
+        </div>
+    </div>
+</form>
+{% endblock %}

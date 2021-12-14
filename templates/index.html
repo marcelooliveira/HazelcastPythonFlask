@@ -1,0 +1,42 @@
+﻿{% extends "base.html" %}
+{% block title %}Shopping Cart{% endblock %}
+
+{% block content %}
+
+<div class="row mt-4">
+    <div class="col col-8 offset-2 col-md-10 offset-md-1 alert alert-primary bg-success text-white text-center">
+        <span class="h3">🛒 SHOPPING CART</span>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col col-8 offset-2 col-md-10 offset-md-1">
+        <div class="row alert alert-warning bg-dark text-white">
+            <span class="col col-2 mt-0 h6 border-left border-light text-center">Qty</span>
+            <span class="col col-4 mt-0 h6 border-left border-light">Description</span>
+            <span class="col col-3 mt-0 h6 border-left border-light text-right">Unit Price</span>
+            <span class="col col-3 mt-0 h6 border-left border-light text-right">Total</span>
+        </div>
+        {% for key, cartItem in Model["CartItems"].items() %}
+        <div class="row alert alert-warning flex-row align-items-center">
+            <input type="hidden" value={{ cartItem.Id }} />
+            <input type="hidden" value={{ cartItem.ProductId }} />
+            <span class="col col-2 mt-0 h6 border-left border-light text-center">{{ cartItem.Quantity }}</span>
+            <span class="col col-4 mt-0 h6 border-left border-light">{{ cartItem.Icon }} {{ cartItem.Description }}</span>
+            <span class="col col-3 mt-0 h6 border-left border-light text-right">{{ "%.2f"|format(cartItem.UnitPrice) }}</span>
+            <span class="col col-3 mt-0 h6 border-left border-light text-right">{{ "%.2f"|format(cartItem.Total) }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<form method="POST">
+    <div class="row mt-0">
+        <div class="col col-8 offset-2 col-sm-6 offset-sm-4 col-md-6 offset-md-5">
+            <input type="submit" class="h6 mt-0 float-right text-center" name="addToCartSubmit" value="➕ Add to Cart" />
+            <input type="submit" class="h6 mt-0 mr-4 button float-right text-center" name="checkoutSubmit" value="✔️ Check out"
+            {{ 'disabled' if Model["CartItems"].items()|length == 0 }}/>
+        </div>
+    </div>
+</form>
+{% endblock %}

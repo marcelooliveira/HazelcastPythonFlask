@@ -1,0 +1,54 @@
+﻿{% extends "base.html" %}
+{% block title %}Order Tracking{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+    <div class="col col-md-8 offset-md-2 alert alert-primary bg-success text-white text-center">
+        <span class="h3">🚚 ORDERS PREPARED FOR DELIVERY</span>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col col-md-8 offset-md-2">
+        <div class="row alert alert-warning bg-dark text-white">
+            <span class="col col-2 mt-0 h6 border-left border-light">Id</span>
+            <span class="col col-4 mt-0 h6 border-left border-light">Placement</span>
+            <span class="col col-3 mt-0 h6 border-left border-light">Item Count</span>
+            <span class="col col-3 mt-0 h6 border-left border-light text-right">Total</span>
+        </div>
+        {% for order in Model["OrdersForDelivery"] %}
+            <div class="row alert alert-warning flex-row align-items-center">
+                <span class="col col-2 mt-0 h6 border-left border-light">{{ order.Id }}</span>
+                <span class="col col-4 mt-0 h6 border-left border-light">{{ order.Placement.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                <span class="col col-3 mt-0 h6 border-left border-light">{{ order.ItemCount }}</span>
+                <span class="col col-3 mt-0 h6 border-left border-light text-right">{{ "%.2f"|format(order.Total) }}</span>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col col-md-8 offset-md-2 alert alert-primary bg-danger text-white text-center">
+        <span class="h3">🚫 ORDERS WITH REJECTED PAYMENT</span>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col col-md-8 offset-md-2">
+        <div class="row alert alert-warning bg-dark text-white">
+            <span class="col col-2 mt-0 h6 border-left border-light">Id</span>
+            <span class="col col-4 mt-0 h6 border-left border-light">Placement</span>
+            <span class="col col-3 mt-0 h6 border-left border-light">ItemCount</span>
+            <span class="col col-3 mt-0 h6 border-left border-light text-right">Total</span>
+        </div>
+        {% for order in Model["OrdersRejected"] %}
+            <div class="row alert alert-warning flex-row align-items-center">
+                <span class="col col-2 mt-0 h6 border-left border-light">{{ order.Id }}</span>
+                <span class="col col-4 mt-0 h6 border-left border-light">{{ order.Placement.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                <span class="col col-3 mt-0 h6 border-left border-light">{{ order.ItemCount }}</span>
+                <span class="col col-3 mt-0 h6 border-left border-light text-right">{{ "%.2f"|format(order.Total) }}</span>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
