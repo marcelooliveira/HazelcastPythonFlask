@@ -72,8 +72,8 @@
                 dataType: "json",
                 data: cartItem,
                 success: function (data) {
-                    $("#unitPrice").html('$' + Number.parseFloat(data.UnitPrice).toFixed(2))
-                    $("#total").html('$' + Number.parseFloat(data.Total).toFixed(2))
+                    $("#unitPrice").html('$' + Number.parseFloat(data.unit_price).toFixed(2))
+                    $("#total").html('$' + Number.parseFloat(data.total).toFixed(2))
                 }
             })
         }
