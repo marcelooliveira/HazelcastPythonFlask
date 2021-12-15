@@ -1,28 +1,8 @@
 ﻿from datetime import datetime
 from collections import deque
-from BaseECommerceData import IBaseECommerceData, BaseECommerceData
+from BaseECommerceData import BaseECommerceData
 from models.CartItem import CartItem
 from models.Order import Order
-
-class IECommerceData(IBaseECommerceData):
-    def initialize():
-        pass
-    def get_cart_items():
-        pass
-    def add_cart_item(cart_item: CartItem):
-        pass
-    def check_out():
-        pass
-    def get_orders_awaiting_payment():
-        pass
-    def get_orders_for_delivery():
-        pass
-    def get_orders_rejected():
-        pass
-    def approve_payment():
-        pass
-    def reject_payment():
-        pass
 
 class ECommerceData(BaseECommerceData):
     _cart_items = None

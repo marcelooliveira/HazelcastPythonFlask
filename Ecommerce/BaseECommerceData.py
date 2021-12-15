@@ -1,12 +1,7 @@
-﻿from typing import List
-from Singleton import Singleton
+﻿from Singleton import Singleton
 from models.Product import Product
 
-class IBaseECommerceData(metaclass=Singleton):
-    def get_product_list(self):
-        pass
-
-class BaseECommerceData(IBaseECommerceData):
+class BaseECommerceData(metaclass=Singleton):
     max_order_id = 0
 
     def get_product_list(self):
