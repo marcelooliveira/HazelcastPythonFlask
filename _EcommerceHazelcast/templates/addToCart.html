@@ -1,0 +1,81 @@
+﻿{% extends "base.html" %}
+{% block title %}Add to Cart{% endblock %}
+
+{% block content %}
+
+<div class="row mt-4">
+    <div class="col col-8 offset-2 col-md-10 offset-md-1 alert alert-primary bg-success text-white text-center">
+        <span class="h3">🍎 YOUR FRIENDLY GROCERY</span>
+    </div>
+</div>
+
+<form method="POST">
+    <div class="row">
+        <div class="col col-8 offset-2 col-md-10 offset-md-1">
+            <div class="row alert alert-warning bg-dark text-white">
+                <span class="col col-2 mt-0 h6 border-left border-light text-center">Qty</span>
+                <span class="col col-4 mt-0 h6 border-left border-light text-center">Product</span>
+                <span class="col col-3 mt-0 h6 border-left border-light text-right">Unit Price</span>
+                <span class="col col-3 mt-0 h6 border-left border-light text-right">Total</span>
+            </div>
+            <div class="row alert alert-warning flex-row align-items-center">
+                <input type="hidden" id="cartItemId" name="CartItemId" value="{{ Model['CartItem'].id }}" />
+                <input type="number" class="col col-2 mt-0 h6" id="quantity" name="Quantity" value="{{ Model['CartItem'].quantity }}"/>
+                <select id="productId" name="ProductId" class="col col-4 mt-0 h6">
+                    {% for product in Model["Products"] %}
+                        {% if Model["CartItem"].product_id == product.id %}
+                            <option value="{{ product.id }}" selected>{{ product.icon }} {{ product.description }}</option>
+                        {% else %}
+                            <option value="{{ product.id }}">{{ product.icon }} {{ product.description }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <span id="unitPrice" class="col col-3 mt-0 h6 border-left border-light text-right">{{ "%.2f"|format(Model["CartItem"].unit_price) }}</span>
+                <span id="total" class="col col-3 mt-0 h6 border-left border-light text-right">{{ "%.2f"|format(Model["CartItem"].total) }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-0">
+        <div class="col col-8 offset-2 col-sm-6 offset-sm-4 col-md-6 offset-md-5">
+            <input type="submit" class="h6 mt-0 float-right text-center" value="✔️ Confirm" />
+            <input type="button" class="h6 mt-0 mr-4 button float-right text-center"
+                   value="❌ Cancel" onclick="location.href='/'" />
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript">
+        $().ready(function () {
+            $("#quantity").change(function () {
+                updateCartItem()
+            })
+
+            $("#productId").change(function () {
+                updateCartItem()
+            })
+        })
+
+        function updateCartItem() {
+            var cartItem = {
+                Id: parseInt($("#cartItemId").val()),
+                ProductId: parseInt($("#productId").val()),
+                Quantity: parseInt($("#quantity").val())
+            }
+
+            $.ajax({
+                type: 'GET',
+                url: "/getCartItem",
+                contentType: "application/json",
+                dataType: "json",
+                data: cartItem,
+                success: function (data) {
+                    $("#unitPrice").html('$' + Number.parseFloat(data.unit_price).toFixed(2))
+                    $("#total").html('$' + Number.parseFloat(data.total).toFixed(2))
+                }
+            })
+        }
+    </script>
+{% endblock %}
