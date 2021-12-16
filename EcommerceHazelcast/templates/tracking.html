@@ -19,7 +19,7 @@
         {% for order in Model["OrdersForDelivery"] %}
             <div class="row alert alert-warning flex-row align-items-center">
                 <span class="col col-2 mt-0 h6 border-left border-light">{{ order.id }}</span>
-                <span class="col col-4 mt-0 h6 border-left border-light">{{ order.placement.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                <span class="col col-4 mt-0 h6 border-left border-light">{{ order.placement }}</span>
                 <span class="col col-3 mt-0 h6 border-left border-light">{{ order.item_count }}</span>
                 <span class="col col-3 mt-0 h6 border-left border-light text-right">{{ "%.2f"|format(order.total) }}</span>
             </div>
@@ -44,7 +44,7 @@
         {% for order in Model["OrdersRejected"] %}
             <div class="row alert alert-warning flex-row align-items-center">
                 <span class="col col-2 mt-0 h6 border-left border-light">{{ order.id }}</span>
-                <span class="col col-4 mt-0 h6 border-left border-light">{{ order.placement.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                <span class="col col-4 mt-0 h6 border-left border-light">{{ order.placement }}</span>
                 <span class="col col-3 mt-0 h6 border-left border-light">{{ order.item_count }}</span>
                 <span class="col col-3 mt-0 h6 border-left border-light text-right">{{ "%.2f"|format(order.total) }}</span>
             </div>

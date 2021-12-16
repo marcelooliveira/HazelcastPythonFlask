@@ -6,7 +6,6 @@ from app import app
 this = sys.modules[__name__]
 
 ecommerce_data = ECommerceData()
-ecommerce_data.initialize()
 
 @app.route("/tracking", methods=['GET', 'POST'])
 def tracking():

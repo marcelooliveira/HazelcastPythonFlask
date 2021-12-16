@@ -6,7 +6,6 @@ from app import app
 this = sys.modules[__name__]
 
 ecommerce_data = ECommerceData()
-ecommerce_data.initialize()
 
 @app.route("/payment", methods=['GET', 'POST'])
 def payment():

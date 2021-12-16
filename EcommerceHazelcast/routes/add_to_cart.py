@@ -5,7 +5,6 @@ from http import HTTPStatus
 from flask.wrappers import Response
 from werkzeug.utils import redirect
 from ECommerceData import ECommerceData
-from models.BaseEntity import BaseEntity
 from models.CartItem import CartItem
 from app import app
 
@@ -13,7 +12,6 @@ this = sys.modules[__name__]
 this.cart_items = None
 
 ecommerce_data = ECommerceData()
-ecommerce_data.initialize()
 
 @app.route("/addToCart", methods=['GET', 'POST'])
 def add_to_cart():

@@ -21,7 +21,7 @@
                 {{ "border border-danger" if order.id == Model["OrdersAwaitingPayment"][val|length - 1].id }}
                 ">
                 <span class="col col-2 mt-0 h6 border-left border-light">{{ order.id }}</span>
-                <span class="col col-4 mt-0 h6 border-left border-light">{{ order.placement.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                <span class="col col-4 mt-0 h6 border-left border-light">{{ order.placement }}</span>
                 <span class="col col-3 mt-0 h6 border-left border-light">{{ order.item_count }}</span>
                 <span class="col col-3 mt-0 h6 border-left border-light text-right">{{ "%.2f"|format(order.total) }}</span>
             </div>

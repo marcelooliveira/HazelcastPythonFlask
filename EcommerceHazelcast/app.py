@@ -1,7 +1,9 @@
-import sys
-from flask import Flask, render_template, request, redirect
+import atexit
+from flask import Flask
 from ECommerceData import ECommerceData
-from models.CartItem import CartItem
+
+ecommerce_data = ECommerceData()
+ecommerce_data.initialize()
 
 app = Flask(__name__)
 
@@ -10,3 +12,6 @@ from routes.add_to_cart import add_to_cart
 from routes.payment import payment
 from routes.tracking import tracking
 
+@atexit.register
+def exit():
+  ecommerce_data.shutdown()
