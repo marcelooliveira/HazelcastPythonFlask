@@ -8,7 +8,6 @@ from models.Order import Order
 import hazelcast
 
 class ECommerceData(BaseECommerceData):
-    # Connect to Hazelcast cluster.
     _hazelcast_client = None
     _cart_items_map = None
     _orders_awaiting_payment = None
@@ -32,22 +31,28 @@ class ECommerceData(BaseECommerceData):
 
         self._orders_awaiting_payment = self._hazelcast_client.get_queue("distributed-payment-queue").blocking()
         self._orders_awaiting_payment.clear()
-        self._orders_awaiting_payment.put(Order(1006, "2021-10-11 03:03:00", 7, 70.00))
-        self._orders_awaiting_payment.put(Order(1007, "2021-10-12 17:17:00", 2, 20.00))
-        self._orders_awaiting_payment.put(Order(1008, "2021-10-13 21:09:00", 5, 50.00))
+        self._orders_awaiting_payment.put(
+            Order(self.get_next_order_id(), "2021-10-11 03:03:00", 7, 70.00))
+        self._orders_awaiting_payment.put(
+            Order(self.get_next_order_id(), "2021-10-12 17:17:00", 2, 20.00))
+        self._orders_awaiting_payment.put(
+            Order(self.get_next_order_id(), "2021-10-13 21:09:00", 5, 50.00))
 
         self._orders_for_delivery = self._hazelcast_client.get_queue("distributed-delivery-queue").blocking()
         self._orders_for_delivery.clear()
-        self._orders_for_delivery.put(Order(1002, "2021-10-02 23:03:00", 5, 50.00))
-        self._orders_for_delivery.put(Order(1003, "2021-10-09 07:07:00", 3, 30.00))
+        self._orders_for_delivery.put(
+            Order(self.get_next_order_id(), "2021-10-02 23:03:00", 5, 50.00))
+        self._orders_for_delivery.put(
+            Order(self.get_next_order_id(), "2021-10-09 07:07:00", 3, 30.00))
 
         self._orders_rejected = self._hazelcast_client.get_queue("distributed-rejected-queue").blocking()
         self._orders_rejected.clear()
-        self._orders_rejected.put(Order(1001, "2021-10-01 18:32:00", 5, 35.00))
-        self._orders_rejected.put(Order(1004, "2021-10-03 17:17:00", 2, 24.00))
-        self._orders_rejected.put(Order(1005, "2021-10-07 09:12:00", 4, 17.00))
-
-        self._max_order_id = 1008
+        self._orders_rejected.put(
+            Order(self.get_next_order_id(), "2021-10-01 18:32:00", 5, 35.00))
+        self._orders_rejected.put(
+            Order(self.get_next_order_id(), "2021-10-03 17:17:00", 2, 24.00))
+        self._orders_rejected.put(
+            Order(self.get_next_order_id(), "2021-10-07 09:12:00", 4, 17.00))
 
     def get_cart_items(self):
         items = list(self._cart_items_map.values())
@@ -80,10 +85,19 @@ class ECommerceData(BaseECommerceData):
         self._orders_rejected.put(order)
 
     def check_out(self):
-        self._max_order_id = self._max_order_id + 1
-        orderId = self._max_order_id
+        orderId = self.get_next_order_id()
         items = list(self._cart_items_map.values())
         total = sum(map(lambda i: i.quantity * i.unit_price, items))
         order = Order(orderId, datetime.now().strftime("%Y-%m-%d, %H:%M:%S"), len(items), total)
         self._orders_awaiting_payment.put(order)
         self._cart_items_map.clear()
+        
+    def get_next_order_id(self):
+        cpSubsystem = self._hazelcast_client.cp_subsystem
+        atomic_long = cpSubsystem.get_atomic_long("orderId").blocking()
+        return atomic_long.increment_and_get()
+        
+    # def get_next_id(self, entity_name):
+    #     cpSubsystem = self._hazelcast_client.cp_subsystem
+    #     atomic_long = cpSubsystem.get_atomic_long(entity_name).blocking()
+    #     return atomic_long.increment_and_get()
