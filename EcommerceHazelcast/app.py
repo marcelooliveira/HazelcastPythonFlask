@@ -1,10 +1,10 @@
 import atexit
 from flask import Flask
-from ECommerceData import ECommerceData
+from ECommerceDataHazelcast import ECommerceDataHazelcast
 
 app = Flask(__name__)
 
-ecommerce_data = ECommerceData()
+ecommerce_data = ECommerceDataHazelcast()
 ecommerce_data.initialize()
 
 from routes.index import index

@@ -1,6 +1,6 @@
 from GlobalSerializer import GlobalSerializer
 import hazelcast
-from ECommerceData import ECommerceData
+from ECommerceDataHazelcast import ECommerceDataHazelcast
 from hazelcast.proxy.reliable_topic import ReliableMessageListener
 
 
@@ -13,7 +13,7 @@ class MyMessageListener(ReliableMessageListener):
     pass
       
 print('olá mundo')
-ecommerce_data = ECommerceData()
+ecommerce_data = ECommerceDataHazelcast()
 ecommerce_data.start()
 
 listener = MyMessageListener()

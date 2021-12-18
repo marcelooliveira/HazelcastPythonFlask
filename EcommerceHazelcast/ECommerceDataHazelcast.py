@@ -7,7 +7,7 @@ from models.Order import Order
 from hazelcast.proxy.reliable_topic import ReliableMessageListener
 import hazelcast
 
-class ECommerceData(BaseECommerceData):
+class ECommerceDataHazelcast(BaseECommerceData):
     _hazelcast_client = None
     _cart_items_map = None
     _orders_awaiting_payment = None

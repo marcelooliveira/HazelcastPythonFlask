@@ -4,14 +4,14 @@ from flask import render_template, request, jsonify
 from http import HTTPStatus
 from flask.wrappers import Response
 from werkzeug.utils import redirect
-from ECommerceData import ECommerceData
+from ECommerceDataHazelcast import ECommerceDataHazelcast
 from models.CartItem import CartItem
 from app import app
 
 this = sys.modules[__name__]
 this.cart_items = None
 
-ecommerce_data = ECommerceData()
+ecommerce_data = ECommerceDataHazelcast()
 
 @app.route("/addToCart", methods=['GET', 'POST'])
 def add_to_cart():

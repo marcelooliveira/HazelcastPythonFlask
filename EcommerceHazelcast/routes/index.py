@@ -1,11 +1,11 @@
 import sys
 from flask import render_template, request, redirect
-from ECommerceData import ECommerceData
+from ECommerceDataHazelcast import ECommerceDataHazelcast
 from app import app
 
 this = sys.modules[__name__]
 
-ecommerce_data = ECommerceData()
+ecommerce_data = ECommerceDataHazelcast()
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
