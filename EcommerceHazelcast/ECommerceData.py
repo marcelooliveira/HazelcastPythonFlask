@@ -1,10 +1,10 @@
 ﻿from datetime import datetime
-from collections import deque
 
 from BaseECommerceData import BaseECommerceData
-from GlobalSerializer import ColorGroup, GlobalSerializer
+from GlobalSerializer import GlobalSerializer
 from models.CartItem import CartItem
 from models.Order import Order
+from hazelcast.proxy.reliable_topic import ReliableMessageListener
 import hazelcast
 
 class ECommerceData(BaseECommerceData):
@@ -13,6 +13,7 @@ class ECommerceData(BaseECommerceData):
     _orders_awaiting_payment = None
     _orders_for_delivery = None
     _orders_rejected = None
+    _cp_subsystem = None
     
     def start(self):
         self._hazelcast_client = hazelcast.HazelcastClient(global_serializer=GlobalSerializer)
@@ -23,6 +24,8 @@ class ECommerceData(BaseECommerceData):
 
     def initialize(self):
         self.start()
+        self.register_listener()
+        self._cp_subsystem = self._hazelcast_client.cp_subsystem
         self._cart_items_map = self._hazelcast_client.get_map("distributed-cartitem-map").blocking()
         self._cart_items_map.clear()
         self._cart_items_map.put(17, CartItem(1, 17, "🥥", "Coconut", 4.50, 2))
@@ -88,16 +91,30 @@ class ECommerceData(BaseECommerceData):
         orderId = self.get_next_order_id()
         items = list(self._cart_items_map.values())
         total = sum(map(lambda i: i.quantity * i.unit_price, items))
-        order = Order(orderId, datetime.now().strftime("%Y-%m-%d, %H:%M:%S"), len(items), total)
-        self._orders_awaiting_payment.put(order)
+        message = {
+            "orderId" : orderId, 
+            "placement" : datetime.now().strftime("%Y-%m-%d, %H:%M:%S"), 
+            "item_count" : len(items), 
+            "total" : total
+        }        
+        self.publish_order(message)
         self._cart_items_map.clear()
         
     def get_next_order_id(self):
-        cpSubsystem = self._hazelcast_client.cp_subsystem
-        atomic_long = cpSubsystem.get_atomic_long("orderId").blocking()
+        atomic_long = self._cp_subsystem.get_atomic_long("orderId").blocking()
         return atomic_long.increment_and_get()
-        
-    # def get_next_id(self, entity_name):
-    #     cpSubsystem = self._hazelcast_client.cp_subsystem
-    #     atomic_long = cpSubsystem.get_atomic_long(entity_name).blocking()
-    #     return atomic_long.increment_and_get()
+    
+    def publish_order(self, message):
+        topic = self._hazelcast_client.get_reliable_topic("ordersTopic").blocking()
+        topic.publish(message)
+    
+    def register_listener(self):
+        topic = self._hazelcast_client.get_reliable_topic("ordersTopic").blocking()
+        topic.add_listener(self.listener_func)
+    
+    def listener_func(self, topic_message):
+        message = topic_message.message
+        order = Order(message['orderId'], message['placement'], message['item_count'], message['total'])
+        self._orders_awaiting_payment.put(order)
+
+    
