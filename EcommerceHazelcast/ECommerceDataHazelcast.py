@@ -9,7 +9,7 @@ import hazelcast
 
 class ECommerceDataHazelcast(BaseECommerceData):
     _hazelcast_client = None
-    _cart_items_map = None
+    _cart_items = None
     _orders_awaiting_payment = None
     _orders_for_delivery = None
     _orders_rejected = None
@@ -26,11 +26,11 @@ class ECommerceDataHazelcast(BaseECommerceData):
         self.start()
         self.register_listener()
         self._cp_subsystem = self._hazelcast_client.cp_subsystem
-        self._cart_items_map = self._hazelcast_client.get_map("distributed-cartitem-map").blocking()
-        self._cart_items_map.clear()
-        self._cart_items_map.put(17, CartItem(1, 17, "🥥", "Coconut", 4.50, 2))
-        self._cart_items_map.put(13, CartItem(2, 13, "🍒", "Cherries box", 3.50, 3))
-        self._cart_items_map.put(4, CartItem(3, 4, "🍊", "Tangerine box", 3.50, 1))
+        self._cart_items = self._hazelcast_client.get_map("distributed-cartitem-map").blocking()
+        self._cart_items.clear()
+        self._cart_items.put(17, CartItem(1, 17, "🥥", "Coconut", 4.50, 2))
+        self._cart_items.put(13, CartItem(2, 13, "🍒", "Cherries box", 3.50, 3))
+        self._cart_items.put(4, CartItem(3, 4, "🍊", "Tangerine box", 3.50, 1))
 
         self._orders_awaiting_payment = self._hazelcast_client.get_queue("distributed-payment-queue").blocking()
         self._orders_awaiting_payment.clear()
@@ -58,7 +58,7 @@ class ECommerceDataHazelcast(BaseECommerceData):
             Order(self.get_next_order_id(), "2021-10-07 09:12:00", 4, 17.00))
 
     def get_cart_items(self):
-        items = list(self._cart_items_map.values())
+        items = list(self._cart_items.values())
         items.sort(key=lambda i: i.product_id)
         return items
 
@@ -66,7 +66,7 @@ class ECommerceDataHazelcast(BaseECommerceData):
         products = self.get_product_list()
         product = next(filter(lambda p: p.id == cart_item.product_id, products), None)
         newItem = CartItem(cart_item.id, product.id, product.icon, product.description, product.unit_price, cart_item.quantity)
-        self._cart_items_map.put(newItem.product_id, newItem)
+        self._cart_items.put(newItem.product_id, newItem)
     
     def get_orders_awaiting_payment(self):
         orders = list(self._orders_awaiting_payment.iterator())
@@ -89,7 +89,7 @@ class ECommerceDataHazelcast(BaseECommerceData):
 
     def check_out(self):
         orderId = self.get_next_order_id()
-        items = list(self._cart_items_map.values())
+        items = list(self._cart_items.values())
         total = sum(map(lambda i: i.quantity * i.unit_price, items))
         message = {
             "orderId" : orderId, 
@@ -98,21 +98,21 @@ class ECommerceDataHazelcast(BaseECommerceData):
             "total" : total
         }        
         self.publish_order(message)
-        self._cart_items_map.clear()
+        self._cart_items.clear()
         
     def get_next_order_id(self):
         atomic_long = self._cp_subsystem.get_atomic_long("orderId").blocking()
         return atomic_long.increment_and_get()
     
     def publish_order(self, message):
-        topic = self._hazelcast_client.get_reliable_topic("ordersTopic").blocking()
+        topic = self._hazelcast_client.get_reliable_topic("newOrders").blocking()
         topic.publish(message)
     
     def register_listener(self):
-        topic = self._hazelcast_client.get_reliable_topic("ordersTopic").blocking()
-        topic.add_listener(self.listener_func)
+        topic = self._hazelcast_client.get_reliable_topic("newOrders").blocking()
+        topic.add_listener(self.listener)
     
-    def listener_func(self, topic_message):
+    def listener(self, topic_message):
         message = topic_message.message
         order = Order(message['orderId'], message['placement'], message['item_count'], message['total'])
         self._orders_awaiting_payment.put(order)
