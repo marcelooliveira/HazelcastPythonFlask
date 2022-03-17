@@ -38,10 +38,11 @@ class ECommerceData(BaseECommerceData):
 
         self._max_order_id = 1008
 
-    def get_cart_items(self):
+    def get_cart_items(self) -> list:
+        '''Obtain shopping cart items'''
         items = list(self._cart_items.values())
         items.sort(key=lambda i: i.product_id)
-        return items    
+        return items
 
     def add_cart_item(self, cart_item: CartItem):
         '''Add one item to shopping cart'''
@@ -50,17 +51,17 @@ class ECommerceData(BaseECommerceData):
         new_item = CartItem(cart_item.id, product.id, product.icon, product.description, product.unit_price, cart_item.quantity)
         self._cart_items[new_item.product_id] = new_item
 
-    def get_orders_awaiting_payment(self):
+    def get_orders_awaiting_payment(self) -> list:
         '''Obtain orders awaiting payment'''
         orders = list(self._orders_awaiting_payment)
         orders.sort(reverse=True, key=lambda o: o.id)
         return orders
 
-    def get_orders_for_delivery(self):
+    def get_orders_for_delivery(self) -> deque:
         '''Obtain orders ready for delivery'''
         return self._orders_for_delivery
 
-    def get_orders_rejected(self):
+    def get_orders_rejected(self) -> deque:
         '''Obtain orders with rejected payment'''
         return self._orders_rejected
 
