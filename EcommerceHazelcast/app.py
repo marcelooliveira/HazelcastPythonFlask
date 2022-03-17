@@ -1,6 +1,6 @@
-import atexit
+'''application entry point'''
 from flask import Flask
-from ECommerceDataHazelcast import ECommerceDataHazelcast
+from e_commerce_data_hazelcast import ECommerceDataHazelcast
 
 app = Flask(__name__)
 
@@ -11,7 +11,3 @@ from routes.index import index
 from routes.add_to_cart import add_to_cart
 from routes.payment import payment
 from routes.tracking import tracking
-
-@atexit.register
-def exit():
-  ecommerce_data.shutdown()

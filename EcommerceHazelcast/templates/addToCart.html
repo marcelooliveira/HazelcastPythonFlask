@@ -19,14 +19,14 @@
                 <span class="col col-3 mt-0 h6 border-left border-light text-right">Total</span>
             </div>
             <div class="row alert alert-warning flex-row align-items-center">
-                <input type="hidden" id="cartItemId" name="CartItemId" value="{{ Model['CartItem'].id }}" />
+                <input type="hidden" id="cartItemId" name="CartItemId" value="{{ Model['CartItem'].cart_item_id }}" />
                 <input type="number" class="col col-2 mt-0 h6" id="quantity" name="Quantity" value="{{ Model['CartItem'].quantity }}"/>
                 <select id="productId" name="ProductId" class="col col-4 mt-0 h6">
                     {% for product in Model["Products"] %}
-                        {% if Model["CartItem"].product_id == product.id %}
-                            <option value="{{ product.id }}" selected>{{ product.icon }} {{ product.description }}</option>
+                        {% if Model["CartItem"].product_id == product.product_id %}
+                            <option value="{{ product.product_id }}" selected>{{ product.icon }} {{ product.description }}</option>
                         {% else %}
-                            <option value="{{ product.id }}">{{ product.icon }} {{ product.description }}</option>
+                            <option value="{{ product.product_id }}">{{ product.icon }} {{ product.description }}</option>
                         {% endif %}
                     {% endfor %}
                 </select>

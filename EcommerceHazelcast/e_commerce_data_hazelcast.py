@@ -1,28 +1,27 @@
-﻿from datetime import datetime
+﻿'''Wrapper for Hazelcast Client data operations'''
+from datetime import datetime
 
-from BaseECommerceData import BaseECommerceData
-from GlobalSerializer import GlobalSerializer
-from models.CartItem import CartItem
-from models.Order import Order
-from hazelcast.proxy.reliable_topic import ReliableMessageListener
 import hazelcast
+from base_e_commerce_data import BaseECommerceData
+from global_serializer import GlobalSerializer
+from models.cart_item import CartItem
+from models.order import Order
 
 class ECommerceDataHazelcast(BaseECommerceData):
+    '''Wraps Hazelcast Client data operations'''
     _hazelcast_client = None
     _cart_items = None
     _orders_awaiting_payment = None
     _orders_for_delivery = None
     _orders_rejected = None
     _cp_subsystem = None
-    
+
     def start(self):
+        '''Initializes Hazelcast client'''
         self._hazelcast_client = hazelcast.HazelcastClient(global_serializer=GlobalSerializer)
 
-    def shutdown(self):
-        print('*** HAZELCAST SHUTDOWN ***')
-        self._hazelcast_client.shutdown()
-
     def initialize(self):
+        '''Initializes CP subsystem, sample maps and queues'''
         self.start()
         self.register_listener()
         self._cp_subsystem = self._hazelcast_client.cp_subsystem
@@ -58,63 +57,74 @@ class ECommerceDataHazelcast(BaseECommerceData):
             Order(self.get_next_order_id(), "2021-10-07 09:12:00", 4, 17.00))
 
     def get_cart_items(self):
+        '''Obtain shopping cart items'''
         items = list(self._cart_items.values())
         items.sort(key=lambda i: i.product_id)
         return items
 
     def add_cart_item(self, cart_item: CartItem):
+        '''Add one item to shopping cart'''
         products = self.get_product_list()
-        product = next(filter(lambda p: p.id == cart_item.product_id, products), None)
-        newItem = CartItem(cart_item.id, product.id, product.icon, product.description, product.unit_price, cart_item.quantity)
-        self._cart_items.put(newItem.product_id, newItem)
-    
+        product = next(filter(lambda p: p.product_id == cart_item.product_id, products), None)
+        new_item = CartItem(cart_item.cart_item_id, product.product_id, product.icon, product.description, product.unit_price, cart_item.quantity)
+        self._cart_items.put(new_item.product_id, new_item)
+
     def get_orders_awaiting_payment(self):
+        '''Obtain orders awaiting payment'''
         orders = list(self._orders_awaiting_payment.iterator())
-        orders.sort(reverse=True, key=lambda o: o.id)
+        orders.sort(reverse=True, key=lambda o: o.order_id)
         return orders
 
     def get_orders_for_delivery(self):
+        '''Obtain orders ready for delivery'''
         return list(self._orders_for_delivery.iterator())
 
     def get_orders_rejected(self):
+        '''Obtain orders with rejected payment'''
         return list(self._orders_rejected.iterator())
 
     def approve_payment(self):
+        '''Move order from awaiting payment to ready for delivery'''
         order = self._orders_awaiting_payment.take()
         self._orders_for_delivery.put(order)
 
     def reject_payment(self):
+        '''Move order from awaiting payment to payment rejected'''
         order = self._orders_awaiting_payment.take()
         self._orders_rejected.put(order)
 
     def check_out(self):
-        orderId = self.get_next_order_id()
+        '''create a new order and clear the shopping cart'''
+        order_id = self.get_next_order_id()
         items = list(self._cart_items.values())
         total = sum(map(lambda i: i.quantity * i.unit_price, items))
         message = {
-            "orderId" : orderId, 
+            "order_id" : order_id, 
             "placement" : datetime.now().strftime("%Y-%m-%d, %H:%M:%S"), 
-            "item_count" : len(items), 
+            "item_count" : len(items),
             "total" : total
-        }        
+        }
         self.publish_order(message)
         self._cart_items.clear()
-        
-    def get_next_order_id(self):
-        atomic_long = self._cp_subsystem.get_atomic_long("orderId").blocking()
-        return atomic_long.increment_and_get()
-    
-    def publish_order(self, message):
-        topic = self._hazelcast_client.get_reliable_topic("newOrders").blocking()
-        topic.publish(message)
-    
-    def register_listener(self):
-        topic = self._hazelcast_client.get_reliable_topic("newOrders").blocking()
-        topic.add_listener(self.listener)
-    
-    def listener(self, topic_message):
-        message = topic_message.message
-        order = Order(message['orderId'], message['placement'], message['item_count'], message['total'])
-        self._orders_awaiting_payment.put(order)
 
-    
+    def get_next_order_id(self):
+        '''obtain the next sequential order id'''
+        atomic_long = self._cp_subsystem.get_atomic_long("order_id").blocking()
+        return atomic_long.increment_and_get()
+
+    def publish_order(self, message):
+        '''publish the order in Hazelcast topic'''
+        topic = self._hazelcast_client.get_reliable_topic("new_orders").blocking()
+        topic.publish(message)
+
+    def register_listener(self):
+        '''register Hazelcast topic'''
+        topic = self._hazelcast_client.get_reliable_topic("new_orders").blocking()
+        topic.add_listener(self.listener)
+
+    def listener(self, topic_message):
+        '''put order awaiting payment in queue'''
+        message = topic_message.message
+        order = Order(message['order_id'], message['placement'], message['item_count'], message['total'])
+        self._orders_awaiting_payment.put(order)
+   

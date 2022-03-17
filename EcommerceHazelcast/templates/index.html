@@ -19,7 +19,7 @@
         </div>
         {% for cartItem in Model["CartItems"] %}
         <div class="row alert alert-warning flex-row align-items-center">
-            <input type="hidden" value={{ cartItem.id }} />
+            <input type="hidden" value={{ cartItem.cart_item_id }} />
             <input type="hidden" value={{ cartItem.product_id }} />
             <span class="col col-2 mt-0 h6 border-left border-light text-center">{{ cartItem.quantity }}</span>
             <span class="col col-4 mt-0 h6 border-left border-light">{{ cartItem.icon }} {{ cartItem.description }}</span>

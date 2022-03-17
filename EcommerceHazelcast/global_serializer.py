@@ -1,15 +1,5 @@
 import pickle
-import hazelcast
 from hazelcast.serialization.api import StreamSerializer
-
-class ColorGroup:
-    def __init__(self, id, name, colors):
-        self.id = id
-        self.name = name
-        self.colors = colors
-
-    def __repr__(self):
-        return "ColorGroup(id=%s, name=%s, colors=%s)" % (self.id, self.name, self.colors)
 
 class GlobalSerializer(StreamSerializer):
     GLOBAL_SERIALIZER_ID = 5  # Should be greater than 0 and unique to each serializer
