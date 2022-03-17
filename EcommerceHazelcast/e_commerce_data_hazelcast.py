@@ -56,7 +56,7 @@ class ECommerceDataHazelcast(BaseECommerceData):
         self._orders_rejected.put(
             Order(self.get_next_order_id(), "2021-10-07 09:12:00", 4, 17.00))
 
-    def get_cart_items(self):
+    def get_cart_items(self) -> list:
         '''Obtain shopping cart items'''
         items = list(self._cart_items.values())
         items.sort(key=lambda i: i.product_id)
@@ -69,17 +69,17 @@ class ECommerceDataHazelcast(BaseECommerceData):
         new_item = CartItem(cart_item.cart_item_id, product.product_id, product.icon, product.description, product.unit_price, cart_item.quantity)
         self._cart_items.put(new_item.product_id, new_item)
 
-    def get_orders_awaiting_payment(self):
+    def get_orders_awaiting_payment(self) -> list:
         '''Obtain orders awaiting payment'''
         orders = list(self._orders_awaiting_payment.iterator())
         orders.sort(reverse=True, key=lambda o: o.order_id)
         return orders
 
-    def get_orders_for_delivery(self):
+    def get_orders_for_delivery(self) -> list:
         '''Obtain orders ready for delivery'''
         return list(self._orders_for_delivery.iterator())
 
-    def get_orders_rejected(self):
+    def get_orders_rejected(self) -> list:
         '''Obtain orders with rejected payment'''
         return list(self._orders_rejected.iterator())
 
@@ -107,7 +107,7 @@ class ECommerceDataHazelcast(BaseECommerceData):
         self.publish_order(message)
         self._cart_items.clear()
 
-    def get_next_order_id(self):
+    def get_next_order_id(self) -> object:
         '''obtain the next sequential order id'''
         atomic_long = self._cp_subsystem.get_atomic_long("order_id").blocking()
         return atomic_long.increment_and_get()

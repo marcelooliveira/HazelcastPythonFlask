@@ -1,10 +1,13 @@
-﻿from Singleton import Singleton
-from models.Product import Product
+﻿'''Initializes the e-commerce with sample data'''
+from singleton import Singleton
+from models.product import Product
 
 class BaseECommerceData(metaclass=Singleton):
+    '''Represents the e-commerce base class with sample product list'''
     max_order_id = 0
 
     def get_product_list(self):
+        '''Initializes the e-commerce with sample data'''
         return [Product(1, "🍇", "Grapes box", 3.50),
             Product(2, "🍈", "Melon box", 3.50 ),
             Product(3, "🍉", "Watermelon box", 5.50 ),
