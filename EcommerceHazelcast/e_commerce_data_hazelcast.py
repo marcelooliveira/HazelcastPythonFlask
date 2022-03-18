@@ -20,6 +20,9 @@ class ECommerceDataHazelcast():
     _orders_for_delivery = None
     _orders_rejected = None
     _cp_subsystem = None
+    _atomic_long = None
+    _topic = None
+    
     max_order_id = 0
     # Objects shared by threads:
 
@@ -40,8 +43,12 @@ class ECommerceDataHazelcast():
     def initialize(self):
         '''Initializes CP subsystem, sample maps and queues'''
         self.start()
-        self.register_listener()
+        
         self._cp_subsystem = self._hazelcast_client.cp_subsystem
+        self._atomic_long = self._cp_subsystem.get_atomic_long("order_id").blocking()
+        self._topic = self._hazelcast_client.get_reliable_topic("new_orders").blocking()
+        self.register_listener()
+        
         self._cart_items = self._hazelcast_client.get_map("distributed-cartitem-map").blocking()
         self._cart_items.clear()
         self._cart_items.put(17, CartItem(1, 17, "🥥", "Coconut", 4.50, 2))
@@ -147,18 +154,15 @@ class ECommerceDataHazelcast():
 
     def get_next_order_id(self):
         '''obtain the next sequential order id'''
-        atomic_long = self._cp_subsystem.get_atomic_long("order_id").blocking()
-        return atomic_long.increment_and_get()
+        return self._atomic_long.increment_and_get()
 
     def publish_order(self, message):
         '''publish the order in Hazelcast topic'''
-        topic = self._hazelcast_client.get_reliable_topic("new_orders").blocking()
-        topic.publish(message)
+        self._topic.publish(message)
 
     def register_listener(self):
         '''register Hazelcast topic'''
-        topic = self._hazelcast_client.get_reliable_topic("new_orders").blocking()
-        topic.add_listener(self.listener)
+        self._topic.add_listener(self.listener)
 
     def listener(self, topic_message):
         '''put order awaiting payment in queue'''
