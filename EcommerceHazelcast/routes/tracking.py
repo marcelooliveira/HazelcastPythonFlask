@@ -6,7 +6,7 @@ from app import app
 
 this = sys.modules[__name__]
 
-ecommerce_data = ECommerceDataHazelcast()
+ecommerce_data = ECommerceDataHazelcast.get_obj()
 
 @app.route("/tracking", methods=['GET', 'POST'])
 def tracking():

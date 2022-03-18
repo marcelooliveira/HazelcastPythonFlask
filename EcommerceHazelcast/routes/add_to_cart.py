@@ -10,7 +10,7 @@ from app import app
 this = sys.modules[__name__]
 this.cart_items = None
 
-ecommerce_data = ECommerceDataHazelcast()
+ecommerce_data = ECommerceDataHazelcast.get_obj()
 
 @app.route("/addToCart", methods=['GET', 'POST'])
 def add_to_cart():

@@ -6,7 +6,7 @@ from app import app
 
 this = sys.modules[__name__]
 
-ecommerce_data = ECommerceDataHazelcast()
+ecommerce_data = ECommerceDataHazelcast.get_obj()
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
@@ -20,12 +20,12 @@ def on_post():
     if 'addToCartSubmit' in request.form.keys():
         return redirect('/addToCart')
     if 'checkoutSubmit' in request.form.keys():
-        ecommerce_data.check_out()
+        ecommerce_data.get_obj().check_out()
     return on_get()
 
 def initialize_page():
     '''initialize e-commerce home page with sample cart items'''
-    this.cart_items = ecommerce_data.get_cart_items()
+    this.cart_items = ecommerce_data.get_obj().get_cart_items()
 
 def on_get():
     '''handles get requests to the e-commerce home page'''
