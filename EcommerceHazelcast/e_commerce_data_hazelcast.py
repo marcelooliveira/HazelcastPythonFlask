@@ -4,7 +4,6 @@ from datetime import datetime
 import sys
 import threading
 import hazelcast
-from global_serializer import GlobalSerializer
 from models.cart_item import CartItem
 from models.order import Order
 from models.product import Product
@@ -36,7 +35,7 @@ class ECommerceDataHazelcast():
 
     def start(self):
         '''Initializes Hazelcast client'''
-        self._hazelcast_client = hazelcast.HazelcastClient(global_serializer=GlobalSerializer)
+        self._hazelcast_client = hazelcast.HazelcastClient()
 
     def initialize(self):
         '''Initializes CP subsystem, sample maps and queues'''
